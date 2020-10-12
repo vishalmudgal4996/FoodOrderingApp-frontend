@@ -7,6 +7,7 @@ import CardActionArea from "@material-ui/core/CardActionArea";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Typography from "@material-ui/core/Typography";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./Home.css";
 
 const styles = (theme) => ({
@@ -144,7 +145,7 @@ class Home extends Component {
     return (
       <div>
         <Header
-          homeOptions="true"
+          searchOptions="true"
           baseUrl={this.props.baseUrl}
           updateSearchRestaurant={this.updateSearchRestaurant}
         />
@@ -199,7 +200,11 @@ class Home extends Component {
                       <CardContent className={classes.cardContent}>
                         <div className="card-bottom-info">
                           <span className="rest-rating">
-                            <i className="fa fa-star" />
+                            <FontAwesomeIcon
+                              icon="star"
+                              size="sm"
+                              color="white"
+                            />
                             <Typography variant="caption" component="p">
                               {restaurant.customer_rating}
                             </Typography>
@@ -213,7 +218,7 @@ class Home extends Component {
                               component="p"
                               style={{ fontSize: "14px" }}
                             >
-                              <i className="fa fa-inr" aria-hidden="true" />
+                              <FontAwesomeIcon icon="rupee-sign" />
                               {restaurant.average_price}
                             </Typography>
                             <Typography

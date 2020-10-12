@@ -2,8 +2,9 @@ import React, { Component } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Home from "../screens/home/Home";
 import PrivateRoute from "./../common/PrivateRoute";
-import Details from '../screens/details/Details';
+import Details from "../screens/details/Details";
 import Profile from "./profile/Profile";
+import Checkout from "./checkout/Checkout";
 
 class Controller extends Component {
   constructor() {
@@ -32,6 +33,12 @@ class Controller extends Component {
               exact
               path="/profile"
               component={Profile}
+              baseUrl={this.baseUrl}
+            />
+            <PrivateRoute
+              exact
+              path="/checkout"
+              component={Checkout}
               baseUrl={this.baseUrl}
             />
           </Switch>

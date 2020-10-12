@@ -82,6 +82,9 @@ class Header extends Component {
       modalIsOpen: true,
       value: 0,
     });
+    if (this.props.changeBadgeVisibility) {
+      this.props.changeBadgeVisibility();
+    }
   };
 
   closeModalHandler = () => {
@@ -107,6 +110,10 @@ class Header extends Component {
       signupContactNumber: "",
       signupContactNumberError: "",
     });
+
+    if (this.props.changeBadgeVisibility) {
+      this.props.changeBadgeVisibility();
+    }
   };
 
   tabChangeHandler = (event, value) => {
@@ -431,7 +438,7 @@ class Header extends Component {
             <div className="app-logo">
               <Fastfood style={{ fontSize: "35px", color: "white" }} />
             </div>
-            {this.props.homeOptions === "true" ? (
+            {this.props.searchOptions === "true" ? (
               <div className="app-search">
                 <Typography variant="h6">
                   <Input
