@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Home from "../screens/home/Home";
 import PrivateRoute from "./../common/PrivateRoute";
+import Details from '../screens/details/Details';
 import Profile from "./profile/Profile";
 
 class Controller extends Component {
@@ -21,6 +22,11 @@ class Controller extends Component {
               exact
               path="/"
               render={(props) => <Home {...props} baseUrl={this.baseUrl} />}
+            />
+            <Route
+              exact
+              path="/restaurant/:id"
+              render={(props) => <Details {...props} baseUrl={this.baseUrl} />}
             />
             <PrivateRoute
               exact
