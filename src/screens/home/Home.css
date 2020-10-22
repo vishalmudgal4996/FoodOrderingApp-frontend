@@ -41,3 +41,14 @@
   align-items: normal;
   justify-content: space-between;
 }
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.loading-spinner-height-reset {
+  height: auto;
+}
