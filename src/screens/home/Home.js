@@ -113,7 +113,7 @@ class Home extends Component {
   };
 
   componentDidMount() {
-    this.wait(5000);
+    this.wait(3000);
     let data = null;
     let xhr = new XMLHttpRequest();
     let that = this;

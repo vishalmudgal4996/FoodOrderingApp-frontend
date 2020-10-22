@@ -39,6 +39,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "@fortawesome/fontawesome-free-solid";
 import "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-free-regular";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 // Custom Styles to over ride material ui default styles
 const styles = (theme) => ({
@@ -212,6 +213,7 @@ class Checkout extends Component {
       noOfColumn: 3,
       isLoggedIn:
         sessionStorage.getItem("access-token") === null ? false : true,
+      isLoading: true,
     };
   }
   //This method is called to get the array of steps name.
@@ -282,10 +284,21 @@ class Checkout extends Component {
     });
   };
 
+  sleep = (milliseconds) => {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  };
+  wait = async (milliseconds = 2000) => {
+    await this.sleep(milliseconds);
+    this.setState({
+      isLoading: false,
+    });
+  };
+
   //This method is called when the components are mounted and in turn calls the api.
   //This method call get all address,get all states and get all payment endpoints.
   //Then re-renders the page with the data received from the api
   componentDidMount() {
+    this.wait(3000);
     if (this.state.isLoggedIn) {
       //Calling getAllAddress function to get all the address of the customer.
       this.getAllAddress();
@@ -699,506 +712,559 @@ class Checkout extends Component {
     const { classes } = this.props;
     return (
       <div>
-        {this.redirectToHome() /*This method is called to check if logged in or not else redirected to home.*/}
-        {/*Rendering Header and passing parameter showHeaderSearchBox as false to remove the search box. */}
-        <Header
-          baseUrl={this.props.baseUrl}
-          showHeaderSearchBox={false}
-          logoutRedirect={this.logoutRedirectToHome}
-        />
-        <div className="checkout-container">
-          <div className="stepper-container">
-            <Stepper
-              activeStep={this.state.activeStep}
-              orientation="vertical"
-              className={classes.stepper}
-            >
-              {this.state.steps.map((
-                label,
-                index //Iteration over each step to create a stepper
-              ) => (
-                <Step key={label}>
-                  <StepLabel>{label}</StepLabel>
-                  <StepContent>
-                    {index === 0 ? (
-                      <div className="address-container">
-                        <Tabs
-                          className="address-tabs"
-                          value={this.state.value}
-                          onChange={this.tabsChangeHandler}
-                        >
-                          <Tab
-                            label="EXISTING ADDRESS"
-                            className={classes.tab}
-                          />
-                          <Tab label="NEW ADDRESS" className={classes.tab} />
-                        </Tabs>
-                        {this.state.value === 0 && ( //Based on the value showing the tab value = 0 for existing address
-                          <TabContainer>
-                            {this.state.addresses.length !== 0 ? (
-                              <GridList
-                                className={classes.gridList}
-                                cols={this.state.noOfColumn}
-                                spacing={2}
-                                cellHeight="auto"
-                              >
-                                {this.state.addresses.map((address) => (
-                                  <GridListTile
-                                    className={classes.gridListTile}
-                                    key={address.id}
-                                    style={{
-                                      borderColor: address.selected
-                                        ? "rgb(224,37,96)"
-                                        : "white",
-                                    }}
+        <div
+          className={
+            this.state.isLoading
+              ? "loading-spinner"
+              : "loading-spinner-height-reset"
+          }
+        >
+          {this.state.isLoading && <CircularProgress />}
+        </div>
+        {this.state.isLoading === false && (
+          <div>
+            {this.redirectToHome() /*This method is called to check if logged in or not else redirected to home.*/}
+            {/*Rendering Header and passing parameter showHeaderSearchBox as false to remove the search box. */}
+            <Header
+              baseUrl={this.props.baseUrl}
+              showHeaderSearchBox={false}
+              logoutRedirect={this.logoutRedirectToHome}
+            />
+            <div className="checkout-container">
+              <div className="stepper-container">
+                <Stepper
+                  activeStep={this.state.activeStep}
+                  orientation="vertical"
+                  className={classes.stepper}
+                >
+                  {this.state.steps.map((
+                    label,
+                    index //Iteration over each step to create a stepper
+                  ) => (
+                    <Step key={label}>
+                      <StepLabel>{label}</StepLabel>
+                      <StepContent>
+                        {index === 0 ? (
+                          <div className="address-container">
+                            <Tabs
+                              className="address-tabs"
+                              value={this.state.value}
+                              onChange={this.tabsChangeHandler}
+                            >
+                              <Tab
+                                label="EXISTING ADDRESS"
+                                className={classes.tab}
+                              />
+                              <Tab
+                                label="NEW ADDRESS"
+                                className={classes.tab}
+                              />
+                            </Tabs>
+                            {this.state.value === 0 && ( //Based on the value showing the tab value = 0 for existing address
+                              <TabContainer>
+                                {this.state.addresses.length !== 0 ? (
+                                  <GridList
+                                    className={classes.gridList}
+                                    cols={this.state.noOfColumn}
+                                    spacing={2}
+                                    cellHeight="auto"
                                   >
-                                    <div className="grid-list-tile-container">
-                                      <Typography variant="body1" component="p">
-                                        {address.flatBuildingName}
-                                      </Typography>
-                                      <Typography variant="body1" component="p">
-                                        {address.locality}
-                                      </Typography>
-                                      <Typography variant="body1" component="p">
-                                        {address.city}
-                                      </Typography>
-                                      <Typography variant="body1" component="p">
-                                        {address.state.state_name}
-                                      </Typography>
-                                      <Typography variant="body1" component="p">
-                                        {address.pincode}
-                                      </Typography>
-                                      <IconButton
-                                        className={classes.addressCheckButton}
-                                        onClick={() =>
-                                          this.addressSelectedClickHandler(
-                                            address.id
-                                          )
-                                        }
+                                    {this.state.addresses.map((address) => (
+                                      <GridListTile
+                                        className={classes.gridListTile}
+                                        key={address.id}
+                                        style={{
+                                          borderColor: address.selected
+                                            ? "rgb(224,37,96)"
+                                            : "white",
+                                        }}
                                       >
-                                        <CheckCircleIcon
-                                          style={{
-                                            color: address.selected
-                                              ? "green"
-                                              : "grey",
-                                          }}
-                                        />
-                                      </IconButton>
-                                    </div>
-                                  </GridListTile>
-                                ))}
-                              </GridList>
-                            ) : (
-                              <Typography variant="body1" component="p">
-                                There are no saved addresses! You can save an
-                                address using the 'New Address' tab or using
-                                your ‘Profile’ menu option.
-                              </Typography>
+                                        <div className="grid-list-tile-container">
+                                          <Typography
+                                            variant="body1"
+                                            component="p"
+                                          >
+                                            {address.flatBuildingName}
+                                          </Typography>
+                                          <Typography
+                                            variant="body1"
+                                            component="p"
+                                          >
+                                            {address.locality}
+                                          </Typography>
+                                          <Typography
+                                            variant="body1"
+                                            component="p"
+                                          >
+                                            {address.city}
+                                          </Typography>
+                                          <Typography
+                                            variant="body1"
+                                            component="p"
+                                          >
+                                            {address.state.state_name}
+                                          </Typography>
+                                          <Typography
+                                            variant="body1"
+                                            component="p"
+                                          >
+                                            {address.pincode}
+                                          </Typography>
+                                          <IconButton
+                                            className={
+                                              classes.addressCheckButton
+                                            }
+                                            onClick={() =>
+                                              this.addressSelectedClickHandler(
+                                                address.id
+                                              )
+                                            }
+                                          >
+                                            <CheckCircleIcon
+                                              style={{
+                                                color: address.selected
+                                                  ? "green"
+                                                  : "grey",
+                                              }}
+                                            />
+                                          </IconButton>
+                                        </div>
+                                      </GridListTile>
+                                    ))}
+                                  </GridList>
+                                ) : (
+                                  <Typography variant="body1" component="p">
+                                    There are no saved addresses! You can save
+                                    an address using the 'New Address' tab or
+                                    using your ‘Profile’ menu option.
+                                  </Typography>
+                                )}
+                              </TabContainer>
                             )}
-                          </TabContainer>
-                        )}
-                        {this.state.value === 1 && ( //Value = 1 for save address tab
-                          <TabContainer className={classes.saveAddressForm}>
+                            {this.state.value === 1 && ( //Value = 1 for save address tab
+                              <TabContainer className={classes.saveAddressForm}>
+                                <FormControl
+                                  required
+                                  className={classes.formControl}
+                                >
+                                  <InputLabel htmlFor="flat-building-name">
+                                    Flat / Building No.
+                                  </InputLabel>
+                                  <Input
+                                    id="flat-building-name"
+                                    className="input-fields"
+                                    flatbuildingname={
+                                      this.state.flatBuildingName
+                                    }
+                                    fullWidth={true}
+                                    onChange={
+                                      this.inputFlatBuildingNameChangeHandler
+                                    }
+                                    value={this.state.flatBuildingName}
+                                  />
+                                  <FormHelperText
+                                    className={
+                                      this.state.flatBuildingNameRequired
+                                    }
+                                  >
+                                    <span className="red">required</span>
+                                  </FormHelperText>
+                                </FormControl>
+                                <br />
+                                <br />
+                                <FormControl className={classes.formControl}>
+                                  <InputLabel htmlFor="locality">
+                                    Locality
+                                  </InputLabel>
+                                  <Input
+                                    id="locality"
+                                    className="input-fields"
+                                    locality={this.state.locality}
+                                    fullWidth={true}
+                                    onChange={this.inputLocalityChangeHandler}
+                                    value={this.state.locality}
+                                  />
+                                  <FormHelperText
+                                    className={this.state.localityRequired}
+                                  >
+                                    <span className="red">required</span>
+                                  </FormHelperText>
+                                </FormControl>
+                                <br />
+                                <br />
+                                <FormControl
+                                  required
+                                  className={classes.formControl}
+                                >
+                                  <InputLabel htmlFor="city">City</InputLabel>
+                                  <Input
+                                    id="city"
+                                    className="input-fields"
+                                    type="text"
+                                    city={this.state.city}
+                                    fullWidth={true}
+                                    onChange={this.inputCityChangeHandler}
+                                    value={this.state.city}
+                                  />
+                                  <FormHelperText
+                                    className={this.state.cityRequired}
+                                  >
+                                    <span className="red">required</span>
+                                  </FormHelperText>
+                                </FormControl>
+                                <br />
+                                <br />
+                                <FormControl
+                                  required
+                                  className={classes.formControl}
+                                >
+                                  <InputLabel htmlFor="state">State</InputLabel>
+                                  <Select
+                                    id="state"
+                                    className={classes.selectField}
+                                    state={this.state.selectedState}
+                                    onChange={
+                                      this.selectSelectedStateChangeHandler
+                                    }
+                                    MenuProps={{
+                                      style: {
+                                        marginTop: "50px",
+                                        maxHeight: "300px",
+                                      },
+                                    }}
+                                    value={this.state.selectedState}
+                                  >
+                                    {this.state.states.map((state) => (
+                                      <MenuItem value={state.id} key={state.id}>
+                                        {state.state_name}
+                                      </MenuItem>
+                                    ))}
+                                  </Select>
+                                  <FormHelperText
+                                    className={this.state.stateRequired}
+                                  >
+                                    <span className="red">required</span>
+                                  </FormHelperText>
+                                </FormControl>
+                                <br />
+                                <br />
+                                <FormControl
+                                  required
+                                  className={classes.formControl}
+                                >
+                                  <InputLabel htmlFor="pincode">
+                                    Pincode
+                                  </InputLabel>
+                                  <Input
+                                    id="pincode"
+                                    className="input-fields"
+                                    pincode={this.state.pincode}
+                                    fullWidth={true}
+                                    onChange={this.inputPincodeChangeHandler}
+                                    value={this.state.pincode}
+                                  />
+                                  <FormHelperText
+                                    className={this.state.pincodeRequired}
+                                  >
+                                    <span className="red">required</span>
+                                  </FormHelperText>
+                                  <FormHelperText
+                                    className={this.state.pincodeHelpText}
+                                  >
+                                    <span className="red">
+                                      Pincode must contain only numbers and must
+                                      be 6 digits long
+                                    </span>
+                                  </FormHelperText>
+                                </FormControl>
+                                <br />
+                                <br />
+                                <br />
+                                <Button
+                                  variant="contained"
+                                  className={classes.formButton}
+                                  color="secondary"
+                                  onClick={this.saveAddressClickHandler}
+                                >
+                                  SAVE ADDRESS
+                                </Button>
+                              </TabContainer>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="payment-container">
                             <FormControl
-                              required
-                              className={classes.formControl}
+                              component="fieldset"
+                              className={classes.radioFormControl}
                             >
-                              <InputLabel htmlFor="flat-building-name">
-                                Flat / Building No.
-                              </InputLabel>
-                              <Input
-                                id="flat-building-name"
-                                className="input-fields"
-                                flatbuildingname={this.state.flatBuildingName}
-                                fullWidth={true}
-                                onChange={
-                                  this.inputFlatBuildingNameChangeHandler
-                                }
-                                value={this.state.flatBuildingName}
-                              />
-                              <FormHelperText
-                                className={this.state.flatBuildingNameRequired}
+                              <FormLabel component="legend">
+                                Select Mode of Payment
+                              </FormLabel>
+                              <RadioGroup
+                                aria-label="payment"
+                                name="payment"
+                                value={this.state.selectedPayment}
+                                onChange={this.radioChangeHandler}
                               >
-                                <span className="red">required</span>
-                              </FormHelperText>
-                            </FormControl>
-                            <br />
-                            <br />
-                            <FormControl className={classes.formControl}>
-                              <InputLabel htmlFor="locality">
-                                Locality
-                              </InputLabel>
-                              <Input
-                                id="locality"
-                                className="input-fields"
-                                locality={this.state.locality}
-                                fullWidth={true}
-                                onChange={this.inputLocalityChangeHandler}
-                                value={this.state.locality}
-                              />
-                              <FormHelperText
-                                className={this.state.localityRequired}
-                              >
-                                <span className="red">required</span>
-                              </FormHelperText>
-                            </FormControl>
-                            <br />
-                            <br />
-                            <FormControl
-                              required
-                              className={classes.formControl}
-                            >
-                              <InputLabel htmlFor="city">City</InputLabel>
-                              <Input
-                                id="city"
-                                className="input-fields"
-                                type="text"
-                                city={this.state.city}
-                                fullWidth={true}
-                                onChange={this.inputCityChangeHandler}
-                                value={this.state.city}
-                              />
-                              <FormHelperText
-                                className={this.state.cityRequired}
-                              >
-                                <span className="red">required</span>
-                              </FormHelperText>
-                            </FormControl>
-                            <br />
-                            <br />
-                            <FormControl
-                              required
-                              className={classes.formControl}
-                            >
-                              <InputLabel htmlFor="state">State</InputLabel>
-                              <Select
-                                id="state"
-                                className={classes.selectField}
-                                state={this.state.selectedState}
-                                onChange={this.selectSelectedStateChangeHandler}
-                                MenuProps={{
-                                  style: {
-                                    marginTop: "50px",
-                                    maxHeight: "300px",
-                                  },
-                                }}
-                                value={this.state.selectedState}
-                              >
-                                {this.state.states.map((state) => (
-                                  <MenuItem value={state.id} key={state.id}>
-                                    {state.state_name}
-                                  </MenuItem>
+                                {this.state.payment.map((payment) => (
+                                  <FormControlLabel
+                                    key={payment.id}
+                                    value={payment.id}
+                                    control={<Radio />}
+                                    label={payment.payment_name}
+                                  />
                                 ))}
-                              </Select>
-                              <FormHelperText
-                                className={this.state.stateRequired}
-                              >
-                                <span className="red">required</span>
-                              </FormHelperText>
+                              </RadioGroup>
                             </FormControl>
-                            <br />
-                            <br />
-                            <FormControl
-                              required
-                              className={classes.formControl}
+                          </div>
+                        )}
+
+                        <div className={classes.actionsContainer}>
+                          <div>
+                            <Button
+                              disabled={this.state.activeStep === 0}
+                              onClick={this.backButtonClickHandler}
+                              className={classes.button}
                             >
-                              <InputLabel htmlFor="pincode">Pincode</InputLabel>
-                              <Input
-                                id="pincode"
-                                className="input-fields"
-                                pincode={this.state.pincode}
-                                fullWidth={true}
-                                onChange={this.inputPincodeChangeHandler}
-                                value={this.state.pincode}
-                              />
-                              <FormHelperText
-                                className={this.state.pincodeRequired}
-                              >
-                                <span className="red">required</span>
-                              </FormHelperText>
-                              <FormHelperText
-                                className={this.state.pincodeHelpText}
-                              >
-                                <span className="red">
-                                  Pincode must contain only numbers and must be
-                                  6 digits long
-                                </span>
-                              </FormHelperText>
-                            </FormControl>
-                            <br />
-                            <br />
-                            <br />
+                              Back
+                            </Button>
                             <Button
                               variant="contained"
-                              className={classes.formButton}
-                              color="secondary"
-                              onClick={this.saveAddressClickHandler}
+                              color="primary"
+                              onClick={this.nextButtonClickHandler}
+                              className={classes.button}
                             >
-                              SAVE ADDRESS
+                              {this.state.activeStep ===
+                              this.state.steps.length - 1
+                                ? "Finish"
+                                : "Next"}
                             </Button>
-                          </TabContainer>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="payment-container">
-                        <FormControl
-                          component="fieldset"
-                          className={classes.radioFormControl}
+                          </div>
+                        </div>
+                      </StepContent>
+                    </Step>
+                  ))}
+                </Stepper>
+                {this.state.activeStep === this.state.steps.length && (
+                  <Paper
+                    square
+                    elevation={0}
+                    className={classes.resetContainer}
+                  >
+                    <Typography>
+                      View the summary and place your order now!
+                    </Typography>
+                    <Button
+                      onClick={this.changeButtonClickHandler}
+                      className={classes.button}
+                    >
+                      Change
+                    </Button>
+                  </Paper>
+                )}
+              </div>
+              <div className="summary-container">
+                <Card className={classes.summary}>
+                  <CardHeader
+                    title="Summary"
+                    titleTypographyProps={{
+                      variant: "h5",
+                    }}
+                    className={classes.summaryHeader}
+                  />
+                  <CardContent className={classes.cardContent}>
+                    <Typography
+                      variant="subtitle1"
+                      component="p"
+                      className={classes.restaurantName}
+                    >
+                      {this.state.restaurantDetails.name}
+                    </Typography>
+                    {this.state.cartItems.map((cartItem) => (
+                      <div className="menu-item-container" key={cartItem.id}>
+                        <FontAwesomeIcon
+                          icon="stop-circle"
+                          style={{
+                            color:
+                              cartItem.itemType === "NON_VEG"
+                                ? "#BE4A47"
+                                : "#5A9A5B",
+                          }}
+                        />
+                        <Typography
+                          variant="subtitle1"
+                          component="p"
+                          className={classes.menuItemName}
+                          id="summary-menu-item-name"
                         >
-                          <FormLabel component="legend">
-                            Select Mode of Payment
-                          </FormLabel>
-                          <RadioGroup
-                            aria-label="payment"
-                            name="payment"
-                            value={this.state.selectedPayment}
-                            onChange={this.radioChangeHandler}
+                          {cartItem.name[0].toUpperCase() +
+                            cartItem.name.slice(1)}
+                        </Typography>
+                        <Typography
+                          variant="subtitle1"
+                          component="p"
+                          className={classes.itemQuantity}
+                        >
+                          {cartItem.quantity}
+                        </Typography>
+                        <div className="summary-item-price-container">
+                          <FontAwesomeIcon
+                            icon="rupee-sign"
+                            style={{ color: "grey" }}
+                          />
+                          <Typography
+                            variant="subtitle1"
+                            component="p"
+                            className={classes.itemPrice}
+                            id="summary-item-price"
                           >
-                            {this.state.payment.map((payment) => (
-                              <FormControlLabel
-                                key={payment.id}
-                                value={payment.id}
-                                control={<Radio />}
-                                label={payment.payment_name}
-                              />
-                            ))}
-                          </RadioGroup>
-                        </FormControl>
+                            {cartItem.totalAmount.toFixed(2)}
+                          </Typography>
+                        </div>
                       </div>
-                    )}
-
-                    <div className={classes.actionsContainer}>
-                      <div>
-                        <Button
-                          disabled={this.state.activeStep === 0}
-                          onClick={this.backButtonClickHandler}
-                          className={classes.button}
+                    ))}
+                    <div className="coupon-container">
+                      <FormControl className={classes.formControlCoupon}>
+                        <InputLabel htmlFor="coupon">Coupon Code</InputLabel>
+                        <FilledInput
+                          id="coupon"
+                          className={classes.couponInput}
+                          value={this.state.couponName}
+                          onChange={this.inputCouponNameChangeHandler}
+                          placeholder="Ex: FLAT30"
+                        />
+                        <FormHelperText
+                          className={this.state.couponNameRequired}
                         >
-                          Back
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={this.nextButtonClickHandler}
-                          className={classes.button}
+                          <span className="red">required</span>
+                        </FormHelperText>
+                        <FormHelperText
+                          className={this.state.couponNameHelpText}
                         >
-                          {this.state.activeStep === this.state.steps.length - 1
-                            ? "Finish"
-                            : "Next"}
-                        </Button>
-                      </div>
-                    </div>
-                  </StepContent>
-                </Step>
-              ))}
-            </Stepper>
-            {this.state.activeStep === this.state.steps.length && (
-              <Paper square elevation={0} className={classes.resetContainer}>
-                <Typography>
-                  View the summary and place your order now!
-                </Typography>
-                <Button
-                  onClick={this.changeButtonClickHandler}
-                  className={classes.button}
-                >
-                  Change
-                </Button>
-              </Paper>
-            )}
-          </div>
-          <div className="summary-container">
-            <Card className={classes.summary}>
-              <CardHeader
-                title="Summary"
-                titleTypographyProps={{
-                  variant: "h5",
-                }}
-                className={classes.summaryHeader}
-              />
-              <CardContent className={classes.cardContent}>
-                <Typography
-                  variant="subtitle1"
-                  component="p"
-                  className={classes.restaurantName}
-                >
-                  {this.state.restaurantDetails.name}
-                </Typography>
-                {this.state.cartItems.map((cartItem) => (
-                  <div className="menu-item-container" key={cartItem.id}>
-                    <FontAwesomeIcon
-                      icon="stop-circle"
-                      style={{
-                        color:
-                          cartItem.itemType === "NON_VEG"
-                            ? "#BE4A47"
-                            : "#5A9A5B",
-                      }}
-                    />
-                    <Typography
-                      variant="subtitle1"
-                      component="p"
-                      className={classes.menuItemName}
-                      id="summary-menu-item-name"
-                    >
-                      {cartItem.name[0].toUpperCase() + cartItem.name.slice(1)}
-                    </Typography>
-                    <Typography
-                      variant="subtitle1"
-                      component="p"
-                      className={classes.itemQuantity}
-                    >
-                      {cartItem.quantity}
-                    </Typography>
-                    <div className="summary-item-price-container">
-                      <FontAwesomeIcon
-                        icon="rupee-sign"
-                        style={{ color: "grey" }}
-                      />
-                      <Typography
-                        variant="subtitle1"
-                        component="p"
-                        className={classes.itemPrice}
-                        id="summary-item-price"
+                          <span className="red">invalid coupon</span>
+                        </FormHelperText>
+                      </FormControl>
+                      <Button
+                        variant="contained"
+                        color="default"
+                        className={classes.applyButton}
+                        onClick={this.applyButtonClickHandler}
+                        size="small"
                       >
-                        {cartItem.totalAmount.toFixed(2)}
-                      </Typography>
+                        APPLY
+                      </Button>
                     </div>
-                  </div>
-                ))}
-                <div className="coupon-container">
-                  <FormControl className={classes.formControlCoupon}>
-                    <InputLabel htmlFor="coupon">Coupon Code</InputLabel>
-                    <FilledInput
-                      id="coupon"
-                      className={classes.couponInput}
-                      value={this.state.couponName}
-                      onChange={this.inputCouponNameChangeHandler}
-                      placeholder="Ex: FLAT30"
-                    />
-                    <FormHelperText className={this.state.couponNameRequired}>
-                      <span className="red">required</span>
-                    </FormHelperText>
-                    <FormHelperText className={this.state.couponNameHelpText}>
-                      <span className="red">invalid coupon</span>
-                    </FormHelperText>
-                  </FormControl>
-                  <Button
-                    variant="contained"
-                    color="default"
-                    className={classes.applyButton}
-                    onClick={this.applyButtonClickHandler}
-                    size="small"
-                  >
-                    APPLY
-                  </Button>
-                </div>
-                <div className="label-amount-container">
-                  <Typography
-                    variant="subtitle2"
-                    component="p"
-                    style={{ color: "grey" }}
-                  >
-                    Sub Total
-                  </Typography>
-                  <div className="amount">
-                    <FontAwesomeIcon
-                      icon="rupee-sign"
-                      style={{ color: "grey" }}
-                    />
-                    <Typography
-                      variant="subtitle1"
-                      component="p"
-                      style={{ color: "grey" }}
-                      id="summary-net-amount"
-                    >
-                      {this.getSubTotal().toFixed(2)}
-                    </Typography>
-                  </div>
-                </div>
-                <div className="label-amount-container">
-                  <Typography
-                    variant="subtitle2"
-                    component="p"
-                    className={classes.netAmount}
-                    style={{ color: "grey" }}
-                  >
-                    Discount
-                  </Typography>
-                  <div className="amount">
-                    <FontAwesomeIcon
-                      icon="rupee-sign"
-                      style={{ color: "grey" }}
-                    />
-                    <Typography
-                      variant="subtitle1"
-                      component="p"
-                      style={{ color: "grey" }}
-                      id="summary-net-amount"
-                    >
-                      {this.getDiscountAmount().toFixed(2)}
-                    </Typography>
-                  </div>
-                </div>
+                    <div className="label-amount-container">
+                      <Typography
+                        variant="subtitle2"
+                        component="p"
+                        style={{ color: "grey" }}
+                      >
+                        Sub Total
+                      </Typography>
+                      <div className="amount">
+                        <FontAwesomeIcon
+                          icon="rupee-sign"
+                          style={{ color: "grey" }}
+                        />
+                        <Typography
+                          variant="subtitle1"
+                          component="p"
+                          style={{ color: "grey" }}
+                          id="summary-net-amount"
+                        >
+                          {this.getSubTotal().toFixed(2)}
+                        </Typography>
+                      </div>
+                    </div>
+                    <div className="label-amount-container">
+                      <Typography
+                        variant="subtitle2"
+                        component="p"
+                        className={classes.netAmount}
+                        style={{ color: "grey" }}
+                      >
+                        Discount
+                      </Typography>
+                      <div className="amount">
+                        <FontAwesomeIcon
+                          icon="rupee-sign"
+                          style={{ color: "grey" }}
+                        />
+                        <Typography
+                          variant="subtitle1"
+                          component="p"
+                          style={{ color: "grey" }}
+                          id="summary-net-amount"
+                        >
+                          {this.getDiscountAmount().toFixed(2)}
+                        </Typography>
+                      </div>
+                    </div>
 
-                <Divider className={classes.divider} />
-                <div className="label-amount-container">
-                  <Typography
-                    variant="subtitle2"
-                    component="p"
-                    className={classes.netAmount}
-                  >
-                    Net Amount
-                  </Typography>
-                  <div className="amount">
-                    <FontAwesomeIcon
-                      icon="rupee-sign"
-                      style={{ color: "grey" }}
-                    />
-                    <Typography
-                      variant="subtitle1"
-                      component="p"
-                      className={classes.itemPrice}
-                      id="summary-net-amount"
-                    >
-                      {this.getNetAmount().toFixed(2)}
-                    </Typography>
-                  </div>
-                </div>
+                    <Divider className={classes.divider} />
+                    <div className="label-amount-container">
+                      <Typography
+                        variant="subtitle2"
+                        component="p"
+                        className={classes.netAmount}
+                      >
+                        Net Amount
+                      </Typography>
+                      <div className="amount">
+                        <FontAwesomeIcon
+                          icon="rupee-sign"
+                          style={{ color: "grey" }}
+                        />
+                        <Typography
+                          variant="subtitle1"
+                          component="p"
+                          className={classes.itemPrice}
+                          id="summary-net-amount"
+                        >
+                          {this.getNetAmount().toFixed(2)}
+                        </Typography>
+                      </div>
+                    </div>
 
-                <Button
-                  variant="contained"
-                  color="primary"
-                  fullWidth={true}
-                  className={classes.placeOrderButton}
-                  onClick={this.placeOrderButtonClickHandler}
-                >
-                  PLACE ORDER
-                </Button>
-              </CardContent>
-            </Card>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      fullWidth={true}
+                      className={classes.placeOrderButton}
+                      onClick={this.placeOrderButtonClickHandler}
+                    >
+                      PLACE ORDER
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+            <div>
+              <Snackbar
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+                open={this.state.snackBarOpen}
+                autoHideDuration={4000}
+                onClose={this.snackBarClose}
+                TransitionComponent={this.state.transition}
+                ContentProps={{
+                  "aria-describedby": "message-id",
+                }}
+                message={
+                  <span id="message-id">{this.state.snackBarMessage}</span>
+                }
+                action={
+                  <IconButton color="inherit" onClick={this.snackBarClose}>
+                    <CloseIcon />
+                  </IconButton>
+                }
+              />
+            </div>
           </div>
-        </div>
-        <div>
-          <Snackbar
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-            open={this.state.snackBarOpen}
-            autoHideDuration={4000}
-            onClose={this.snackBarClose}
-            TransitionComponent={this.state.transition}
-            ContentProps={{
-              "aria-describedby": "message-id",
-            }}
-            message={<span id="message-id">{this.state.snackBarMessage}</span>}
-            action={
-              <IconButton color="inherit" onClick={this.snackBarClose}>
-                <CloseIcon />
-              </IconButton>
-            }
-          />
-        </div>
+        )}
       </div>
     );
   }

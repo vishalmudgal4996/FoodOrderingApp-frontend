@@ -19,6 +19,7 @@ import "@fortawesome/fontawesome-free-solid";
 import "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-free-regular";
 import "./Details.css";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 // Custom Styles to over ride material ui default styles
 const styles = (theme) => ({
@@ -107,13 +108,25 @@ class Details extends Component {
       snackBarMessage: "",
       transition: Fade,
       badgeVisible: false,
+      isLoading: true,
     };
   }
+
+  sleep = (milliseconds) => {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  };
+  wait = async (milliseconds = 2000) => {
+    await this.sleep(milliseconds);
+    this.setState({
+      isLoading: false,
+    });
+  };
 
   //This method is called when the components are mounted.
   //This method inturn calls the api get restaurant by id endpoints and updates the state with the relevant details.
   //Then the page is re-rendered with the data received from the api.
   componentDidMount() {
+    this.wait(3000);
     let data = null;
     let that = this;
     let xhrRestaurantDetails = new XMLHttpRequest();
@@ -323,289 +336,320 @@ class Details extends Component {
     const { classes } = this.props;
     return (
       <div>
-        {/* Rendering the header and passing the parameter showHeaderSearchBox as false to not render the searchBox 
-            also changeBadgeVisibility function is passed to change the visibility when the modal is open. */}
-        <Header
-          baseUrl={this.props.baseUrl}
-          searchOptions="false"
-          changeBadgeVisibility={this.changeBadgeVisibility}
-        />
-        {/* Restaurant Details Container */}
-        <div className="restaurant-details-container">
+        <div
+          className={
+            this.state.isLoading
+              ? "loading-spinner"
+              : "loading-spinner-height-reset"
+          }
+        >
+          {this.state.isLoading && <CircularProgress />}
+        </div>
+        {this.state.isLoading === false && (
           <div>
-            <img
-              src={this.state.restaurantDetails.photoURL}
-              alt="Restaurant"
-              height="215px"
-              width="275px"
+            {/* Rendering the header and passing the parameter showHeaderSearchBox as false to not render the searchBox 
+            also changeBadgeVisibility function is passed to change the visibility when the modal is open. */}
+            <Header
+              baseUrl={this.props.baseUrl}
+              searchOptions="false"
+              changeBadgeVisibility={this.changeBadgeVisibility}
             />
-          </div>
-          <div className="restaurant-details">
-            <div className="restaurant-name">
-              <Typography
-                variant="h5"
-                component="h5"
-                className={classes.restaurantName}
-              >
-                {this.state.restaurantDetails.name}
-              </Typography>
-              <Typography
-                variant="subtitle1"
-                component="p"
-                className={classes.restaurantLocation}
-              >
-                {this.state.restaurantDetails.locality}
-              </Typography>
-              <Typography
-                variant="subtitle1"
-                component="p"
-                className={classes.restaurantCategory}
-              >
-                {this.state.restaurantDetails.categoriesName}
-              </Typography>
-            </div>
-            <div className="restaurant-rating-cost-container">
-              <div className="restaurant-rating-container">
-                <div className="restaurant-rating">
-                  <FontAwesomeIcon icon="star" size="sm" color="black" />
-                  <Typography variant="subtitle1" component="p">
-                    {this.state.restaurantDetails.rating}
-                  </Typography>
-                </div>
-                <Typography
-                  variant="caption"
-                  component="p"
-                  className={classes.textRatingCost}
-                >
-                  AVERAGE RATING BY{" "}
-                  {
-                    <span className="restaurant-NoOfCustomerRated">
-                      {this.state.restaurantDetails.noOfCustomerRated}
-                    </span>
-                  }{" "}
-                  CUSTOMERS
-                </Typography>
+            {/* Restaurant Details Container */}
+            <div className="restaurant-details-container">
+              <div>
+                <img
+                  src={this.state.restaurantDetails.photoURL}
+                  alt="Restaurant"
+                  height="215px"
+                  width="275px"
+                />
               </div>
-              <div className="restaurant-avg-cost-container">
-                <div className="restaurant-avg-cost">
-                  <FontAwesomeIcon icon="rupee-sign" />
+              <div className="restaurant-details">
+                <div className="restaurant-name">
+                  <Typography
+                    variant="h5"
+                    component="h5"
+                    className={classes.restaurantName}
+                  >
+                    {this.state.restaurantDetails.name}
+                  </Typography>
                   <Typography
                     variant="subtitle1"
                     component="p"
-                    className={classes.avgCost}
+                    className={classes.restaurantLocation}
                   >
-                    {this.state.restaurantDetails.avgCost}
+                    {this.state.restaurantDetails.locality}
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    component="p"
+                    className={classes.restaurantCategory}
+                  >
+                    {this.state.restaurantDetails.categoriesName}
                   </Typography>
                 </div>
-                <Typography
-                  variant="caption"
-                  component="p"
-                  className={classes.textRatingCost}
-                >
-                  AVERAGE COST FOR TWO PEOPLE
-                </Typography>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Menu and Cart Card Container */}
-        <div className="menu-details-cart-container">
-          <div className="menu-details">
-            {this.state.categories.map((
-              category //Iterating for each category in the categories array to display each category
-            ) => (
-              <div key={category.id}>
-                <Typography
-                  variant="overline"
-                  component="p"
-                  className={classes.categoryName}
-                >
-                  {category.category_name}
-                </Typography>
-                <Divider />
-                {category.item_list.map((
-                  item //Iterating over each item to display each items in the category.
-                ) => (
-                  <div className="menu-item-container" key={item.id}>
-                    <FontAwesomeIcon
-                      icon="circle"
-                      size="sm"
-                      color={
-                        item.item_type === "NON_VEG" ? "#BE4A47" : "#5A9A5B"
-                      }
-                    />
+                <div className="restaurant-rating-cost-container">
+                  <div className="restaurant-rating-container">
+                    <div className="restaurant-rating">
+                      <FontAwesomeIcon icon="star" size="sm" color="black" />
+                      <Typography variant="subtitle1" component="p">
+                        {this.state.restaurantDetails.rating}
+                      </Typography>
+                    </div>
                     <Typography
-                      variant="subtitle1"
+                      variant="caption"
                       component="p"
-                      className={classes.menuItemName}
+                      className={classes.textRatingCost}
                     >
-                      {item.item_name[0].toUpperCase() +
-                        item.item_name.slice(1)}
+                      AVERAGE RATING BY{" "}
+                      {
+                        <span className="restaurant-NoOfCustomerRated">
+                          {this.state.restaurantDetails.noOfCustomerRated}
+                        </span>
+                      }{" "}
+                      CUSTOMERS
                     </Typography>
-                    <div className="item-price">
+                  </div>
+                  <div className="restaurant-avg-cost-container">
+                    <div className="restaurant-avg-cost">
                       <FontAwesomeIcon icon="rupee-sign" />
                       <Typography
                         variant="subtitle1"
                         component="p"
-                        className={classes.itemPrice}
+                        className={classes.avgCost}
                       >
-                        {item.price.toFixed(2)}
+                        {this.state.restaurantDetails.avgCost}
                       </Typography>
                     </div>
-                    <IconButton
-                      className={classes.addButton}
-                      aria-label="add"
-                      onClick={() => this.itemAddButtonClickHandler(item)}
-                    >
-                      <AddIcon />
-                    </IconButton>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-          {/* Cart Card */}
-          <div className="my-cart">
-            <Card className={classes.myCart}>
-              <CardHeader
-                avatar={
-                  <Avatar
-                    aria-label="shopping-cart"
-                    className={classes.shoppingCart}
-                  >
-                    <Badge
-                      badgeContent={this.state.cartItems.length}
-                      color="primary"
-                      showZero={true}
-                      invisible={this.state.badgeVisible}
-                      className={classes.badge}
-                    >
-                      <ShoppingCartIcon />
-                    </Badge>
-                  </Avatar>
-                }
-                title="My Cart"
-                titleTypographyProps={{
-                  variant: "h6",
-                }}
-                className={classes.cartHeader}
-              />
-              <CardContent className={classes.cardContent}>
-                {this.state.cartItems.map((
-                  cartItem //Iterating over each item in cartItem to show in the cart.
-                ) => (
-                  <div className="cart-menu-item-container" key={cartItem.id}>
-                    <FontAwesomeIcon
-                      icon="stop-circle"
-                      style={{
-                        color:
-                          cartItem.itemType === "NON_VEG"
-                            ? "#BE4A47"
-                            : "#5A9A5B",
-                      }}
-                    />
                     <Typography
-                      variant="subtitle1"
+                      variant="caption"
                       component="p"
-                      className={classes.menuItemName}
-                      id="cart-menu-item-name"
+                      className={classes.textRatingCost}
                     >
-                      {cartItem.name[0].toUpperCase() + cartItem.name.slice(1)}
-                    </Typography>
-                    <div className="quantity-container">
-                      <IconButton
-                        className={classes.cartItemButton}
-                        id="minus-button"
-                        aria-label="remove"
-                        onClick={() => this.minusButtonClickHandler(cartItem)}
-                      >
-                        <FontAwesomeIcon icon="minus" size="xs" color="black" />
-                      </IconButton>
-                      <Typography
-                        variant="subtitle1"
-                        component="p"
-                        className={classes.itemQuantity}
-                      >
-                        {cartItem.quantity}
-                      </Typography>
-                      <IconButton
-                        className={classes.cartItemButton}
-                        aria-label="add"
-                        onClick={() => this.cartAddButtonClickHandler(cartItem)}
-                      >
-                        <FontAwesomeIcon icon="plus" size="xs" color="black" />
-                      </IconButton>
-                    </div>
-                    <div className="item-price">
-                      <FontAwesomeIcon
-                        icon="rupee-sign"
-                        style={{ color: "grey" }}
-                      />
-                      <Typography
-                        variant="subtitle1"
-                        component="p"
-                        className={classes.itemPrice}
-                        id="cart-item-price"
-                      >
-                        {cartItem.totalAmount.toFixed(2)}
-                      </Typography>
-                    </div>
-                  </div>
-                ))}
-                <div className="total-amount-container">
-                  <Typography
-                    variant="subtitle2"
-                    component="p"
-                    className={classes.totalAmount}
-                  >
-                    TOTAL AMOUNT
-                  </Typography>
-                  <div className="total-price">
-                    <FontAwesomeIcon icon="rupee-sign" />
-                    <Typography
-                      variant="subtitle1"
-                      component="p"
-                      className={classes.itemPrice}
-                      id="cart-total-price"
-                    >
-                      {this.state.totalAmount.toFixed(2)}
+                      AVERAGE COST FOR TWO PEOPLE
                     </Typography>
                   </div>
                 </div>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  fullWidth={true}
-                  className={classes.checkOutButton}
-                  onClick={this.checkOutButtonClickHandler}
-                >
-                  CHECKOUT
-                </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+            {/* Menu and Cart Card Container */}
+            <div className="menu-details-cart-container">
+              <div className="menu-details">
+                {this.state.categories.map((
+                  category //Iterating for each category in the categories array to display each category
+                ) => (
+                  <div key={category.id}>
+                    <Typography
+                      variant="overline"
+                      component="p"
+                      className={classes.categoryName}
+                    >
+                      {category.category_name}
+                    </Typography>
+                    <Divider />
+                    {category.item_list.map((
+                      item //Iterating over each item to display each items in the category.
+                    ) => (
+                      <div className="menu-item-container" key={item.id}>
+                        <FontAwesomeIcon
+                          icon="circle"
+                          size="sm"
+                          color={
+                            item.item_type === "NON_VEG" ? "#BE4A47" : "#5A9A5B"
+                          }
+                        />
+                        <Typography
+                          variant="subtitle1"
+                          component="p"
+                          className={classes.menuItemName}
+                        >
+                          {item.item_name[0].toUpperCase() +
+                            item.item_name.slice(1)}
+                        </Typography>
+                        <div className="item-price">
+                          <FontAwesomeIcon icon="rupee-sign" />
+                          <Typography
+                            variant="subtitle1"
+                            component="p"
+                            className={classes.itemPrice}
+                          >
+                            {item.price.toFixed(2)}
+                          </Typography>
+                        </div>
+                        <IconButton
+                          className={classes.addButton}
+                          aria-label="add"
+                          onClick={() => this.itemAddButtonClickHandler(item)}
+                        >
+                          <AddIcon />
+                        </IconButton>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              {/* Cart Card */}
+              <div className="my-cart">
+                <Card className={classes.myCart}>
+                  <CardHeader
+                    avatar={
+                      <Avatar
+                        aria-label="shopping-cart"
+                        className={classes.shoppingCart}
+                      >
+                        <Badge
+                          badgeContent={this.state.cartItems.length}
+                          color="primary"
+                          showZero={true}
+                          invisible={this.state.badgeVisible}
+                          className={classes.badge}
+                        >
+                          <ShoppingCartIcon />
+                        </Badge>
+                      </Avatar>
+                    }
+                    title="My Cart"
+                    titleTypographyProps={{
+                      variant: "h6",
+                    }}
+                    className={classes.cartHeader}
+                  />
+                  <CardContent className={classes.cardContent}>
+                    {this.state.cartItems.map((
+                      cartItem //Iterating over each item in cartItem to show in the cart.
+                    ) => (
+                      <div
+                        className="cart-menu-item-container"
+                        key={cartItem.id}
+                      >
+                        <FontAwesomeIcon
+                          icon="stop-circle"
+                          style={{
+                            color:
+                              cartItem.itemType === "NON_VEG"
+                                ? "#BE4A47"
+                                : "#5A9A5B",
+                          }}
+                        />
+                        <Typography
+                          variant="subtitle1"
+                          component="p"
+                          className={classes.menuItemName}
+                          id="cart-menu-item-name"
+                        >
+                          {cartItem.name[0].toUpperCase() +
+                            cartItem.name.slice(1)}
+                        </Typography>
+                        <div className="quantity-container">
+                          <IconButton
+                            className={classes.cartItemButton}
+                            id="minus-button"
+                            aria-label="remove"
+                            onClick={() =>
+                              this.minusButtonClickHandler(cartItem)
+                            }
+                          >
+                            <FontAwesomeIcon
+                              icon="minus"
+                              size="xs"
+                              color="black"
+                            />
+                          </IconButton>
+                          <Typography
+                            variant="subtitle1"
+                            component="p"
+                            className={classes.itemQuantity}
+                          >
+                            {cartItem.quantity}
+                          </Typography>
+                          <IconButton
+                            className={classes.cartItemButton}
+                            aria-label="add"
+                            onClick={() =>
+                              this.cartAddButtonClickHandler(cartItem)
+                            }
+                          >
+                            <FontAwesomeIcon
+                              icon="plus"
+                              size="xs"
+                              color="black"
+                            />
+                          </IconButton>
+                        </div>
+                        <div className="item-price">
+                          <FontAwesomeIcon
+                            icon="rupee-sign"
+                            style={{ color: "grey" }}
+                          />
+                          <Typography
+                            variant="subtitle1"
+                            component="p"
+                            className={classes.itemPrice}
+                            id="cart-item-price"
+                          >
+                            {cartItem.totalAmount.toFixed(2)}
+                          </Typography>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="total-amount-container">
+                      <Typography
+                        variant="subtitle2"
+                        component="p"
+                        className={classes.totalAmount}
+                      >
+                        TOTAL AMOUNT
+                      </Typography>
+                      <div className="total-price">
+                        <FontAwesomeIcon icon="rupee-sign" />
+                        <Typography
+                          variant="subtitle1"
+                          component="p"
+                          className={classes.itemPrice}
+                          id="cart-total-price"
+                        >
+                          {this.state.totalAmount.toFixed(2)}
+                        </Typography>
+                      </div>
+                    </div>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      fullWidth={true}
+                      className={classes.checkOutButton}
+                      onClick={this.checkOutButtonClickHandler}
+                    >
+                      CHECKOUT
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+            <div>
+              <Snackbar
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+                open={this.state.snackBarOpen}
+                autoHideDuration={4000}
+                onClose={this.snackBarClose}
+                TransitionComponent={this.state.transition}
+                ContentProps={{
+                  "aria-describedby": "message-id",
+                }}
+                message={
+                  <span id="message-id">{this.state.snackBarMessage}</span>
+                }
+                action={
+                  <IconButton color="inherit" onClick={this.snackBarClose}>
+                    <CloseIcon />
+                  </IconButton>
+                }
+              />
+            </div>
           </div>
-        </div>
-        <div>
-          <Snackbar
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-            open={this.state.snackBarOpen}
-            autoHideDuration={4000}
-            onClose={this.snackBarClose}
-            TransitionComponent={this.state.transition}
-            ContentProps={{
-              "aria-describedby": "message-id",
-            }}
-            message={<span id="message-id">{this.state.snackBarMessage}</span>}
-            action={
-              <IconButton color="inherit" onClick={this.snackBarClose}>
-                <CloseIcon />
-              </IconButton>
-            }
-          />
-        </div>
+        )}
       </div>
     );
   }
