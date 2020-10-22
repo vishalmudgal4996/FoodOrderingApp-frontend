@@ -621,6 +621,9 @@ class Checkout extends Component {
             snackBarMessage:
               "Order placed successfully! Your order ID is " + responseOrder.id,
           });
+          setTimeout(function() {
+            window.location.href = "/";
+          }, 3000);
         } else {
           that.setState({
             ...that.state,
