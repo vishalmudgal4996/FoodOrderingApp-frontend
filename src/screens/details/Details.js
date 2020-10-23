@@ -126,7 +126,7 @@ class Details extends Component {
   //This method inturn calls the api get restaurant by id endpoints and updates the state with the relevant details.
   //Then the page is re-rendered with the data received from the api.
   componentDidMount() {
-    this.wait(3000);
+    this.wait(1000);
     let data = null;
     let that = this;
     let xhrRestaurantDetails = new XMLHttpRequest();

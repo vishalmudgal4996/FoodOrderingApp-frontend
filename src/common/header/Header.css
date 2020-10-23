@@ -20,6 +20,11 @@
   color: white;
 }
 
+.category-search {
+  display: flex;
+  color: white;
+}
+
 .MuiInput-underline:after {
   border-bottom-color: white !important ;
 }

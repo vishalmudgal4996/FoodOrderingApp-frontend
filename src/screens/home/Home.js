@@ -113,7 +113,7 @@ class Home extends Component {
   };
 
   componentDidMount() {
-    this.wait(3000);
+    this.wait(1000);
     let data = null;
     let xhr = new XMLHttpRequest();
     let that = this;
@@ -177,6 +177,7 @@ class Home extends Component {
               searchOptions="true"
               baseUrl={this.props.baseUrl}
               updateSearchRestaurant={this.updateSearchRestaurant}
+              categoryOption="true"
             />
             <div className="flex-container">
               <Grid

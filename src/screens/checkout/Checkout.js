@@ -298,7 +298,7 @@ class Checkout extends Component {
   //This method call get all address,get all states and get all payment endpoints.
   //Then re-renders the page with the data received from the api
   componentDidMount() {
-    this.wait(3000);
+    this.wait(1000);
     if (this.state.isLoggedIn) {
       //Calling getAllAddress function to get all the address of the customer.
       this.getAllAddress();

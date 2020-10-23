@@ -21,6 +21,7 @@ import IconButton from "@material-ui/core/IconButton";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import { Link } from "react-router-dom";
+import TocIcon from "@material-ui/icons/Toc";
 
 const customStyles = {
   content: {
@@ -453,6 +454,18 @@ class Header extends Component {
                     }
                     onChange={this.inputSearchChangeHandler}
                   />
+                </Typography>
+              </div>
+            ) : (
+              ""
+            )}
+            {this.props.categoryOption === "true" ? (
+              <div className="category-search">
+                <Typography variant="body1">
+                  <TocIcon />
+                </Typography>
+                <Typography variant="body1">
+                  <span style={{ marginLeft: "5px" }}>Categories</span>
                 </Typography>
               </div>
             ) : (
