@@ -1,3 +1,26 @@
+Ui Screens:
+
+![](food_app_screens/homepage.png)
+
+![](food_app_screens/search.png)
+
+![](food_app_screens/detailspage.png)
+
+![](food_app_screens/checkoutpage.png)
+
+![](food_app_screens/orderpage.png)
+
+Ui Screens Responsiveness:
+
+![](food_app_screens/displayresponsive.png)
+
+
+Backend Apis:
+
+![](backend_screens/restapiscreens.png)
+
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
