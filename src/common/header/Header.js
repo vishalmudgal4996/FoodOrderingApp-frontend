@@ -22,6 +22,7 @@ import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import { Link } from "react-router-dom";
 import TocIcon from "@material-ui/icons/Toc";
+import Popover from "@material-ui/core/Popover";
 
 const customStyles = {
   content: {
@@ -74,9 +75,18 @@ class Header extends Component {
       snackBarMessage: "",
       loggedIn: sessionStorage.getItem("access-token") === null ? false : true,
       loggedInCustomerFirstName: sessionStorage.getItem("customer-name"),
-      anchorE1: null,
+      anchorEl: null,
+      open: false,
     };
   }
+
+  handleClick = (event) => {
+    this.setState({ anchorEl: event.currentTarget, open: true });
+  };
+
+  handleClose = () => {
+    this.setState({ anchorEl: null, open: false });
+  };
 
   openModalHandler = () => {
     this.setState({
@@ -462,7 +472,30 @@ class Header extends Component {
             {this.props.categoryOption === "true" ? (
               <div className="category-search">
                 <Typography variant="body1">
-                  <TocIcon />
+                  <TocIcon
+                    onClick={this.handleClick}
+                    style={{ cursor: "pointer" }}
+                  />
+                  <Popover
+                    id={this.state.open ? "simple-popover" : undefined}
+                    open={Boolean(this.state.anchorEl)}
+                    anchorEl={this.state.anchorEl}
+                    onClose={this.handleClose}
+                    anchorReference="anchorPosition"
+                    anchorPosition={{ top: 40, left: 1050 }}
+                    anchorOrigin={{
+                      vertical: "bottom",
+                      horizontal: "center",
+                    }}
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "center",
+                    }}
+                  >
+                    <Typography variant="body1">
+                      The content of the Popover.
+                    </Typography>
+                  </Popover>
                 </Typography>
                 <Typography variant="body1">
                   <span style={{ marginLeft: "5px" }}>Categories</span>
