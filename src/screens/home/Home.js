@@ -178,6 +178,7 @@ class Home extends Component {
               baseUrl={this.props.baseUrl}
               updateSearchRestaurant={this.updateSearchRestaurant}
               categoryOption="true"
+              categorySearchRestaurant={this.updateSearchRestaurant}
             />
             <div className="flex-container">
               <Grid

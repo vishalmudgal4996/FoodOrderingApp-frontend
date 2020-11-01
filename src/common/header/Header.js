@@ -87,17 +87,18 @@ class Header extends Component {
       loggedIn: sessionStorage.getItem("access-token") === null ? false : true,
       loggedInCustomerFirstName: sessionStorage.getItem("customer-name"),
       anchorEl: null,
+      anchorE2: null,
       open: false,
       categoryList: [],
     };
   }
 
-  handleClick = (event) => {
-    this.setState({ anchorEl: event.currentTarget, open: true });
+  handlePopOverClick = (event) => {
+    this.setState({ anchorE2: event.currentTarget, open: true });
   };
 
-  handleClose = () => {
-    this.setState({ anchorEl: null, open: false });
+  handlePopOverClose = () => {
+    this.setState({ anchorE2: null, open: false });
   };
 
   componentDidMount() {
@@ -110,7 +111,6 @@ class Header extends Component {
         that.setState({
           categoryList: JSON.parse(this.responseText).categories,
         });
-        console.log(that.state.categoryList);
       }
     });
 
@@ -472,6 +472,38 @@ class Header extends Component {
     }
   };
 
+  categorySearchHandler = (categoryId) => {
+    let searchOn = true;
+    this.setState({ anchorE2: null, open: false });
+    if (!(categoryId === 0)) {
+      let dataRestaurant = null;
+      let that = this;
+      let xhrSearchRestaurant = new XMLHttpRequest();
+
+      xhrSearchRestaurant.addEventListener("readystatechange", function() {
+        if (
+          xhrSearchRestaurant.readyState === 4 &&
+          xhrSearchRestaurant.status === 200
+        ) {
+          var restaurant = JSON.parse(this.responseText).restaurants;
+          that.props.updateSearchRestaurant(restaurant, searchOn);
+        }
+      });
+
+      xhrSearchRestaurant.open(
+        "GET",
+        this.props.baseUrl + "restaurant/category/" + categoryId
+      );
+      xhrSearchRestaurant.setRequestHeader("Content-Type", "application/json");
+      xhrSearchRestaurant.setRequestHeader("Cache-Control", "no-cache");
+      xhrSearchRestaurant.send(dataRestaurant);
+    } else {
+      let restaurant = [];
+      searchOn = false;
+      this.props.updateSearchRestaurant(restaurant, searchOn);
+    }
+  };
+
   render() {
     const { classes } = this.props;
     return (
@@ -505,14 +537,14 @@ class Header extends Component {
               <div className="category-search">
                 <Typography variant="body1">
                   <TocIcon
-                    onClick={this.handleClick}
+                    onClick={this.handlePopOverClick}
                     style={{ cursor: "pointer" }}
                   />
                   <Popover
                     id={this.state.open ? "simple-popover" : undefined}
-                    open={Boolean(this.state.anchorEl)}
-                    anchorEl={this.state.anchorEl}
-                    onClose={this.handleClose}
+                    open={Boolean(this.state.anchorE2)}
+                    anchorEl={this.state.anchorE2}
+                    onClose={this.handlePopOverClose}
                     anchorOrigin={{
                       vertical: "bottom",
                       horizontal: "center",
@@ -532,7 +564,15 @@ class Header extends Component {
                       >
                         {this.state.categoryList !== null
                           ? this.state.categoryList.map((category) => (
-                              <Grid key={category.id} item xs={4} className="category-item">
+                              <Grid
+                                key={category.id}
+                                item
+                                xs={4}
+                                className="category-item"
+                                onClick={() =>
+                                  this.categorySearchHandler(category.id)
+                                }
+                              >
                                 {category.category_name}
                               </Grid>
                             ))
