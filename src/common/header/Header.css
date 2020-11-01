@@ -91,3 +91,14 @@
     margin-bottom: 10px;
   }
 }
+
+.categories-container {
+  background-color: #c0c0c0;
+  width: auto;
+  height: 100px;
+}
+
+.category-item:hover {
+  color: grey;
+  cursor: pointer;
+}

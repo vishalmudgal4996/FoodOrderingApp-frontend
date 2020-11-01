@@ -23,6 +23,17 @@ import MenuItem from "@material-ui/core/MenuItem";
 import { Link } from "react-router-dom";
 import TocIcon from "@material-ui/icons/Toc";
 import Popover from "@material-ui/core/Popover";
+import Grid from "@material-ui/core/Grid";
+import { withStyles } from "@material-ui/core/styles";
+
+const styles = (theme) => ({
+  grid: {
+    padding: "5px",
+    "margin-left": "0.5%",
+    "margin-right": "0.5%",
+    transform: "translateZ(0)",
+  },
+});
 
 const customStyles = {
   content: {
@@ -77,6 +88,7 @@ class Header extends Component {
       loggedInCustomerFirstName: sessionStorage.getItem("customer-name"),
       anchorEl: null,
       open: false,
+      categoryList: [],
     };
   }
 
@@ -87,6 +99,25 @@ class Header extends Component {
   handleClose = () => {
     this.setState({ anchorEl: null, open: false });
   };
+
+  componentDidMount() {
+    let data = null;
+    let xhr = new XMLHttpRequest();
+    let that = this;
+
+    xhr.addEventListener("readystatechange", function() {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        that.setState({
+          categoryList: JSON.parse(this.responseText).categories,
+        });
+        console.log(that.state.categoryList);
+      }
+    });
+
+    xhr.open("GET", this.props.baseUrl + "category");
+    xhr.setRequestHeader("Cache-Control", "no-cache");
+    xhr.send(data);
+  }
 
   openModalHandler = () => {
     this.setState({
@@ -442,6 +473,7 @@ class Header extends Component {
   };
 
   render() {
+    const { classes } = this.props;
     return (
       <div>
         <header className="app-header">
@@ -481,8 +513,6 @@ class Header extends Component {
                     open={Boolean(this.state.anchorEl)}
                     anchorEl={this.state.anchorEl}
                     onClose={this.handleClose}
-                    anchorReference="anchorPosition"
-                    anchorPosition={{ top: 40, left: 1050 }}
                     anchorOrigin={{
                       vertical: "bottom",
                       horizontal: "center",
@@ -492,9 +522,23 @@ class Header extends Component {
                       horizontal: "center",
                     }}
                   >
-                    <Typography variant="body1">
-                      The content of the Popover.
-                    </Typography>
+                    <div className="categories-container">
+                      <Grid
+                        container
+                        spacing={1}
+                        wrap="wrap"
+                        alignContent="center"
+                        className={classes.grid}
+                      >
+                        {this.state.categoryList !== null
+                          ? this.state.categoryList.map((category) => (
+                              <Grid key={category.id} item xs={4} className="category-item">
+                                {category.category_name}
+                              </Grid>
+                            ))
+                          : ""}
+                      </Grid>
+                    </div>
                   </Popover>
                 </Typography>
                 <Typography variant="body1">
@@ -758,4 +802,4 @@ class Header extends Component {
   }
 }
 
-export default withRouter(Header);
+export default withRouter(withStyles(styles)(Header));
